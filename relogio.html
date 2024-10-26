@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Relógio digital</title>
+    <style>
+        body {
+            background-color: black;
+            color: #00BFFF;
+            font-family: 'Courier New', Courier, monospace;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            height: 100vh;
+            margin: 0;
+        }
+        .clock {
+            text-align: center;
+        }
+        .time {
+            font-size: 100px;
+            letter-spacing: 10px;
+        }
+        .date, .battery, .am-pm {
+            font-size: 30px;
+            margin-top: 10px;
+        }
+        .battery-bar {
+            margin-top: 20px;
+            height: 25px;
+            width: 300px;
+            border: 2px solid #00BFFF;
+            position: relative;
+        }
+        .battery-level {
+            height: 100%;
+            background-color: #00BFFF;
+        }
+    </style>
+</head>
+<body>
+    <div class="clock">
+        <div class="date" id="date"></div>
+        <div class="time" id="time"></div>
+        <div class="am-pm" id="am-pm"></div>
+        <div class="battery">
+            Battery: <span id="battery-percent">0</span>%
+            <div class="battery-bar">   
+                <div class="battery-level" id="battery-level"></div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        function updateClock() {
+            const now = new Date();
+            const year = now.getFullYear();
+            const month = (now.getMonth() + 1).toString().padStart(2, '0');
+            const day = now.getDate().toString().padStart(2, '0');
+            const hours24 = now.getHours();
+            const hours = (hours24 % 12 || 12).toString().padStart(2, '0');
+            const minutes = now.getMinutes().toString().padStart(2, '0');
+            const seconds = now.getSeconds().toString().padStart(2, '0');
+            const amPm = hours24 >= 12 ? 'PM' : 'AM';
+            const dayOfWeek = ['SUN', 'MON', 'TUE', 'WED', 'THU', 'FRI', 'SAT'][now.getDay()];
+
+            document.getElementById('date').textContent = `${year} ${month} ${day} ${dayOfWeek}`;
+            document.getElementById('time').textContent = `${hours}:${minutes}:${seconds}`;
+            document.getElementById('am-pm').textContent = amPm;
+        }
+
+        function updateBattery() {
+            if(navigator.getBattery) {
+                navigator.getBattery().then(function(battery) {
+                    const level = Math.round(battery.level * 100);
+                    document.getElementById('battery-percent').textContent = level;
+                    document.getElementById('battery-level').style.width = level + '%';
+                });
+            } else {
+                document.querySelector('.battery').textContent = 'Battery status not supported';
+            }
+        }
+
+        setInterval(updateClock, 1000);
+        updateClock();
+        updateBattery();
+        setInterval(updateBattery, 60000);
+    </script>    
+</body>
+</html>
